@@ -1,5 +1,5 @@
 // Service worker — caches the app so it works offline (e.g. at the gym with no signal)
-const CACHE = 'posture-strength-v1';
+const CACHE = 'posture-strength-v2';
 const ASSETS = [
   'index.html',
   'manifest.json',

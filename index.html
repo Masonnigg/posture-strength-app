@@ -134,16 +134,15 @@
   .form-panel.show { display: block; }
 
   .fig-wrap {
-    background: var(--surface-2); border: 1px solid var(--line);
+    background: #fff; border: 1px solid var(--line);
     border-radius: 12px; padding: 6px; margin-bottom: 12px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
   }
-  .exfig { width: 100%; height: auto; display: block; }
-  .exfig .f-head { fill: none; stroke: var(--text); stroke-width: 3.5; }
-  .exfig .f-limb { stroke: var(--text); stroke-width: 4; stroke-linecap: round; }
-  .exfig .f-joint { fill: var(--lime); }
-  .exfig .f-ground { stroke: var(--line); stroke-width: 3; stroke-linecap: round; }
-  .exfig .f-arrow { stroke: var(--lime); stroke-width: 3; fill: none; stroke-linecap: round; stroke-dasharray: 4 4; }
-  .exfig .f-arrowhead { fill: var(--lime); }
+  .fig-wrap img {
+    width: 100%; height: auto; display: block; border-radius: 8px;
+    background: #f4f4f4;
+  }
+  .fig-wrap.single { grid-template-columns: 1fr; }
 
   .cue-list { margin: 0; padding-left: 20px; }
   .cue-list li {
@@ -244,125 +243,90 @@ const PROGRAM = [
   { id:'ua', type:'upper', title:'Upper A', sub:'Horizontal focus — your posture workhorse',
     groups:[
       { label:'Main work', ex:[
-        {n:'Chest-supported row', s:'4×8–10', star:true, note:'Squeeze shoulder blades back. This is the priority — lead with it.', fig:'row',
+        {n:'Chest-supported row', s:'4×8–10', star:true, note:'Squeeze shoulder blades back. This is the priority — lead with it.', img:'Dumbbell_Incline_Row',
           cues:['Chest stays pinned to the pad the whole set','Drive elbows back and down, not up toward ears','Squeeze shoulder blades together at the top, pause 1s','Lower under control — don\'t let the weight yank your arms straight']},
-        {n:'Incline DB press', s:'3×8–12', fig:'press',
+        {n:'Incline DB press', s:'3×8–12', img:'Incline_Dumbbell_Press',
           cues:['Bench at ~30°, not steeper','Wrists stacked over elbows','Lower to upper chest, elbows ~45° from torso','Press up and slightly together']},
-        {n:'Lat pulldown', s:'3×10–12', fig:'pulldown',
+        {n:'Lat pulldown', s:'3×10–12', img:'Full_Range-Of-Motion_Lat_Pulldown',
           cues:['Lead with the elbows, not the hands','Pull the bar to upper chest','Let shoulder blades rotate down, no shrugging','Control the bar back up fully']},
       ]},
       { label:'Posture / detail', ex:[
-        {n:'Face pulls', s:'4×15–20', star:true, note:'Rear delts + external rotation — directly fights rounded shoulders.', fig:'facepull',
+        {n:'Face pulls', s:'4×15–20', star:true, note:'Rear delts + external rotation — directly fights rounded shoulders.', img:'Face_Pull',
           cues:['Rope at face height, light weight','Pull toward your forehead, not your chin','Elbows stay high through the whole pull','End with knuckles facing back — externally rotate','Slow eccentric, feel the rear delts']},
-        {n:'Rear-delt fly', s:'3×15', star:true, fig:'rdfly',
+        {n:'Rear-delt fly', s:'3×15', star:true, img:'Bent_Over_Dumbbell_Rear_Delt_Raise_With_Head_On_Bench',
           cues:['Slight bend in elbows, fixed','Lead with pinkies, like pouring out a jug','Squeeze rear delts, don\'t swing','Keep neck relaxed']},
-        {n:'Biceps curl', s:'3×12', fig:'curl',
+        {n:'Biceps curl', s:'3×12', img:'Barbell_Curl',
           cues:['Elbows pinned to your sides','No swinging the torso','Full range top and bottom','Squeeze at the top']},
       ]},
     ]},
   { id:'la', type:'lower', title:'Lower A', sub:'Posterior chain focus',
     groups:[
       { label:'Main work', ex:[
-        {n:'Romanian deadlift', s:'4×8–10', star:true, note:'Glutes + hamstrings — fights anterior pelvic tilt. Flat back, hinge at hips.', fig:'rdl',
+        {n:'Romanian deadlift', s:'4×8–10', star:true, note:'Glutes + hamstrings — fights anterior pelvic tilt. Flat back, hinge at hips.', img:'Romanian_Deadlift',
           cues:['Push your hips back — it\'s a hinge, not a squat','Soft knees, fixed angle','Bar/dumbbells stay close to your legs','Flat back the whole way — never round','Stop at the hamstring stretch, drive hips forward to stand']},
-        {n:'Bulgarian split squat', s:'3×10 / leg', fig:'bss',
+        {n:'Bulgarian split squat', s:'3×10 / leg', img:'Split_Squat_with_Dumbbells',
           cues:['Rear foot on the bench, laces down','~80% of weight through the front leg','Drop straight down, front knee tracks over toes','Torso slightly forward, stay tall']},
-        {n:'Hip thrust', s:'3×12', star:true, note:'Glute strength = pelvis control.', fig:'hipthrust',
+        {n:'Hip thrust', s:'3×12', star:true, note:'Glute strength = pelvis control.', img:'Barbell_Hip_Thrust',
           cues:['Upper back on the bench, mid-back as the pivot','Chin tucked, ribs down','Drive through your heels','Squeeze glutes hard at the top — don\'t arch the lower back','Full lockout: hips, knees, shoulders in line']},
       ]},
       { label:'Accessory / core', ex:[
-        {n:'Leg curl', s:'3×12', fig:'legcurl',
+        {n:'Leg curl', s:'3×12', img:'Lying_Leg_Curls',
           cues:['Hips stay down on the pad','Curl fully, squeeze hamstrings','Slow on the way back','No jerking the weight up']},
-        {n:'Dead bug', s:'3×10 / side', star:true, note:'Anti-extension core — the real posture core work, not crunches.', fig:'deadbug',
+        {n:'Dead bug', s:'3×10 / side', star:true, note:'Anti-extension core — the real posture core work, not crunches.', img:'Dead_Bug',
           cues:['Lower back pressed FLAT into the floor — the whole time','Extend opposite arm + leg slowly','If your back arches, you\'ve gone too far','Breathe out as you extend','Move slow — this is control, not reps']},
-        {n:'Calf raise', s:'3×15', fig:'calf',
+        {n:'Calf raise', s:'3×15', img:'Standing_Calf_Raises',
           cues:['Full stretch at the bottom','Rise all the way onto the toes','Pause at the top','Controlled, no bouncing']},
       ]},
     ]},
   { id:'ub', type:'upper', title:'Upper B', sub:'Vertical + rotator focus',
     groups:[
       { label:'Main work', ex:[
-        {n:'Pull-up (or assisted)', s:'4×6–10', fig:'pullup',
+        {n:'Pull-up (or assisted)', s:'4×6–10', img:'Weighted_Pull_Ups',
           cues:['Start from a full dead hang','Pull shoulder blades down first','Lead with the chest to the bar','Control the descent — no dropping']},
-        {n:'Overhead press', s:'3×8–10', note:'Only if shoulders feel good overhead — otherwise sub landmine press.', fig:'ohp',
+        {n:'Overhead press', s:'3×8–10', note:'Only if shoulders feel good overhead — otherwise sub landmine press.', img:'Standing_Military_Press',
           cues:['Brace core, squeeze glutes — don\'t lean back','Bar/dumbbells over mid-foot','Press up, move head through at the top','Full lockout, biceps near ears']},
-        {n:'Chest-supported row', s:'3×10', star:true, fig:'row',
+        {n:'Chest-supported row', s:'3×10', star:true, img:'Dumbbell_Incline_Row',
           cues:['Chest pinned to the pad','Elbows drive back and down','Squeeze blades together at the top','Control the lowering']},
       ]},
       { label:'Posture / detail', ex:[
-        {n:'Cable Y-raise', s:'3×15', star:true, note:'Lower traps — the muscle desk posture shuts off.', fig:'yraise',
+        {n:'Cable Y-raise', s:'3×15', star:true, note:'Lower traps — the muscle desk posture shuts off.', img:'Dumbbell_Scaption',
           cues:['Light weight — this is a feel exercise','Raise arms into a "Y" overhead','Thumbs up, lead with the lower traps','No shrugging the upper traps','Slow and controlled both directions']},
-        {n:'External rotation (cable/band)', s:'3×15', star:true, fig:'extrot',
+        {n:'External rotation (cable/band)', s:'3×15', star:true, img:'External_Rotation_with_Cable',
           cues:['Elbow pinned to your side, 90° bend','Roll a towel under the elbow to keep it in','Rotate the forearm outward only','Slow return — this is rotator cuff work']},
-        {n:'Triceps pushdown', s:'3×12', fig:'pushdown',
+        {n:'Triceps pushdown', s:'3×12', img:'Triceps_Pushdown',
           cues:['Elbows locked at your sides','Only the forearms move','Full extension at the bottom','Control the weight back up']},
       ]},
     ]},
   { id:'lb', type:'lower', title:'Lower B', sub:'Squat + anti-rotation core',
     groups:[
       { label:'Main work', ex:[
-        {n:'Goblet or front squat', s:'4×8–10', fig:'squat',
+        {n:'Goblet or front squat', s:'4×8–10', img:'Goblet_Squat',
           cues:['Weight at chest, elbows tucked','Brace core before descending','Sit between your hips, knees track over toes','Drive up through mid-foot, chest tall']},
-        {n:'Walking lunge', s:'3×12 / leg', fig:'lunge',
+        {n:'Walking lunge', s:'3×12 / leg', img:'Bodyweight_Walking_Lunge',
           cues:['Long step, drop the back knee toward the floor','Front knee over the ankle','Torso upright','Push through the front heel to rise']},
-        {n:'Back extension', s:'3×15', star:true, note:'Spinal erectors — pause at the top.', fig:'backext',
+        {n:'Back extension', s:'3×15', star:true, note:'Spinal erectors — pause at the top.', img:'Hyperextensions_Back_Extensions',
           cues:['Hinge at the hips, not the lower back','Rise until your body is in a straight line','Pause and squeeze glutes at the top','Don\'t hyperextend past straight']},
       ]},
       { label:'Core', ex:[
-        {n:'Pallof press', s:'3×12 / side', star:true, note:'Anti-rotation — teaches your core to brace.', fig:'pallof',
+        {n:'Pallof press', s:'3×12 / side', star:true, note:'Anti-rotation — teaches your core to brace.', img:'Pallof_Press',
           cues:['Stand side-on to the cable, feet shoulder-width','Press the handle straight out from your chest','Resist the pull trying to twist you','Brace hard — the goal is NOT rotating','Slow back in, stay square']},
-        {n:'Plank', s:'3× max hold', star:true, fig:'plank',
+        {n:'Plank', s:'3× max hold', star:true, img:'Plank',
           cues:['Elbows under shoulders','Straight line head to heels','Squeeze glutes and brace abs','Don\'t let hips sag or pike up','Breathe — don\'t hold your breath']},
-        {n:'Calf raise', s:'3×15', fig:'calf',
+        {n:'Calf raise', s:'3×15', img:'Standing_Calf_Raises',
           cues:['Full stretch at the bottom','Rise onto the toes fully','Pause at the top','No bouncing']},
       ]},
     ]},
 ];
 
-const SCHEDULE = {ua:'Mon', la:'Tue', ub:'Thu', lb:'Fri'};
-
-/* ---- Exercise figure diagrams (inline SVG, always render offline) ----
-   Each shows a stick figure in the key position + a motion arrow.
-   Style: lime joints, light limbs on a dark rounded card. */
-function fig(key){
-  const W=200,H=150;
-  const open = `<svg viewBox="0 0 ${W} ${H}" class="exfig" preserveAspectRatio="xMidYMid meet">`;
-  const close = `</svg>`;
-  // shared bits
-  const ground = `<line x1="14" y1="138" x2="186" y2="138" class="f-ground"/>`;
-  const arrow = (x1,y1,x2,y2)=>`<path d="M${x1} ${y1} L${x2} ${y2}" class="f-arrow" marker-end="url(#ah)"/>`;
-  const defs = `<defs><marker id="ah" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="f-arrowhead"/></marker></defs>`;
-  const head = (cx,cy,r=9)=>`<circle cx="${cx}" cy="${cy}" r="${r}" class="f-head"/>`;
-  const L = (x1,y1,x2,y2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="f-limb"/>`;
-  const J = (cx,cy)=>`<circle cx="${cx}" cy="${cy}" r="3.2" class="f-joint"/>`;
-
-  const F = {
-    // Rows: bent-over torso, elbow driving back
-    row: head(60,52)+L(68,58,150,90)+L(150,90,150,120)+L(150,120,120,135)+L(150,120,178,135)+L(95,72,70,55)+L(95,72,118,52)+J(95,72)+J(70,55)+arrow(118,52,118,30)+ground,
-    press: head(70,48)+L(70,57,70,110)+L(70,110,52,135)+L(70,110,90,135)+L(70,70,100,60)+L(100,60,100,38)+J(100,60)+arrow(108,40,108,18)+ground,
-    pulldown: head(100,40)+L(100,49,100,100)+L(100,100,84,130)+L(100,100,116,130)+L(100,60,72,32)+L(100,60,128,32)+J(72,46)+J(128,46)+arrow(72,30,72,55)+arrow(128,30,128,55)+ground,
-    facepull: head(70,55)+L(70,64,70,115)+L(70,115,54,138)+L(70,115,88,138)+L(70,74,108,70)+L(108,70,100,48)+J(108,70)+arrow(118,66,80,60)+ground,
-    rdfly: head(90,46)+L(90,55,140,80)+L(140,80,140,120)+L(140,120,118,135)+L(140,120,162,135)+L(108,64,84,52)+L(108,64,132,52)+J(108,64)+arrow(84,52,70,38)+arrow(132,52,146,38)+ground,
-    curl: head(80,48)+L(80,57,80,118)+L(80,118,64,138)+L(80,118,96,138)+L(80,70,104,92)+L(104,92,96,66)+J(104,92)+arrow(108,86,108,62)+ground,
-    rdl: head(64,50)+L(72,56,150,84)+L(150,84,150,135)+L(140,108,134,84)+L(95,68,98,108)+J(95,68)+J(150,84)+arrow(40,70,40,110)+ground,
-    bss: head(78,40)+L(78,49,78,92)+L(78,92,70,135)+L(78,92,118,100)+L(118,100,140,128)+L(78,60,96,82)+J(78,92)+J(118,100)+arrow(78,28,78,52)+ground,
-    hipthrust: head(40,90)+L(48,92,110,78)+L(110,78,150,90)+L(110,78,110,120)+L(110,120,90,135)+L(110,120,134,135)+J(110,78)+arrow(110,60,110,82)+`<line x1="150" y1="70" x2="150" y2="110" class="f-ground"/>`+ground,
-    legcurl: head(40,70)+L(48,72,140,72)+L(140,72,150,40)+L(140,72,150,40)+J(140,72)+arrow(160,55,150,38)+`<line x1="150" y1="40" x2="158" y2="46" class="f-limb"/>`+ground,
-    deadbug: head(36,108)+L(44,110,150,110)+L(150,110,150,70)+L(150,110,176,98)+L(70,110,60,72)+L(60,72,62,52)+J(150,110)+J(70,110)+arrow(150,62,150,46)+arrow(62,46,62,30)+ground,
-    calf: head(80,40)+L(80,49,80,112)+L(80,112,68,130)+L(80,112,92,130)+J(80,118)+arrow(100,120,100,96)+ground,
-    pullup: `<line x1="40" y1="22" x2="160" y2="22" class="f-ground"/>`+head(100,58)+L(100,67,100,118)+L(100,118,86,138)+L(100,118,114,138)+L(100,74,78,24)+L(100,74,122,24)+J(78,42)+J(122,42)+arrow(100,40,100,62),
-    ohp: head(80,46)+L(80,55,80,118)+L(80,118,66,138)+L(80,118,94,138)+L(80,68,58,40)+L(80,68,102,40)+J(58,54)+J(102,54)+arrow(58,38,58,20)+arrow(102,38,102,20),
-    yraise: head(90,52)+L(90,61,90,120)+L(90,120,76,138)+L(90,120,104,138)+L(90,70,62,38)+L(90,70,118,38)+J(62,52)+J(118,52)+arrow(62,36,56,20)+arrow(118,36,124,20)+ground,
-    extrot: head(70,52)+L(70,61,70,120)+L(70,120,56,138)+L(70,120,84,138)+L(70,74,70,96)+L(70,96,110,90)+J(70,96)+arrow(116,98,124,80)+ground,
-    pushdown: head(80,46)+L(80,55,80,116)+L(80,116,66,136)+L(80,116,94,136)+L(80,66,100,86)+L(100,86,100,116)+J(100,86)+arrow(108,90,108,114)+ground,
-    squat: head(90,52)+L(90,61,90,96)+L(90,96,72,128)+L(90,96,108,128)+L(90,70,72,60)+L(90,70,108,60)+J(90,96)+arrow(120,70,120,110)+ground,
-    lunge: head(76,42)+L(76,51,76,96)+L(76,96,60,135)+L(76,96,116,108)+L(116,108,140,135)+L(76,62,92,84)+J(76,96)+J(116,108)+arrow(76,118,76,134)+ground,
-    backext: head(44,64)+L(52,66,140,84)+L(140,84,150,120)+J(95,75)+arrow(44,50,70,46)+`<line x1="140" y1="84" x2="150" y2="120" class="f-ground"/>`+ground,
-    pallof: head(80,46)+L(80,55,80,116)+L(80,116,66,138)+L(80,116,94,138)+L(80,68,120,70)+J(80,68)+arrow(126,70,150,70)+`<line x1="150" y1="50" x2="150" y2="92" class="f-ground"/>`+ground,
-    plank: head(34,96)+L(42,98,150,108)+L(46,98,46,124)+L(150,108,150,130)+J(46,98)+arrow(95,84,95,100)+ground,
-  };
-  return open + defs + (F[key]||'') + close;
+const IMG_BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
+function exImg(folder){
+  return `<div class="fig-wrap">
+    <img loading="lazy" src="${IMG_BASE}${folder}/0.jpg" alt="start position">
+    <img loading="lazy" src="${IMG_BASE}${folder}/1.jpg" alt="end position">
+  </div>`;
 }
+
+const SCHEDULE = {ua:'Mon', la:'Tue', ub:'Thu', lb:'Fri'};
 
 const STORE_KEY = 'ul_posture_v1';
 let state = {};
@@ -423,13 +387,13 @@ function render(){
               <span class="ex-scheme">${e.s}</span>
             </div>
             ${e.note?`<p class="ex-note">${e.note}</p>`:''}
-            ${(e.fig||e.cues)?`
+            ${(e.img||e.cues)?`
             <button class="form-toggle" data-form="${d.id}-${gi}-${ei}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
               Form &amp; cues
             </button>
             <div class="form-panel" id="form-${d.id}-${gi}-${ei}">
-              ${e.fig?`<div class="fig-wrap">${fig(e.fig)}</div>`:''}
+              ${e.img?exImg(e.img):''}
               ${e.cues?`<ul class="cue-list">${e.cues.map(c=>`<li>${c}</li>`).join('')}</ul>`:''}
             </div>`:''}
             <div class="sets">${dots}</div>
