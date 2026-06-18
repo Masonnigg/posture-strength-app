@@ -199,6 +199,29 @@
   .tips ul { margin:0; padding-left: 18px; }
   .tips li { font-size:13.5px; color:#c8ccd4; line-height:1.55; margin-bottom:7px; }
   .tips li:last-child{ margin-bottom:0; }
+
+  /* Nutrition card */
+  .nutri { background: var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:14px; }
+  .nutri h3 { font-family:'Barlow Condensed'; font-size:18px; margin:0 0 4px; letter-spacing:0.3px; }
+  .nutri .sub { font-size:12px; color:var(--muted); margin:0 0 14px; }
+  .nutri .inputs { display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:14px; }
+  .nutri label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:5px; font-weight:600; }
+  .nutri input, .nutri select {
+    width:100%; background:var(--surface-2); border:1px solid var(--line); color:var(--text);
+    border-radius:10px; padding:11px 12px; font-family:'Barlow Condensed',sans-serif;
+    font-weight:600; font-size:17px; -webkit-appearance:none; appearance:none;
+  }
+  .nutri input:focus, .nutri select:focus { outline:none; border-color:var(--lime-dim); }
+  .unit-toggle { display:flex; gap:0; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:12px; }
+  .unit-toggle button { flex:1; background:none; border:none; color:var(--muted); padding:8px 0; font-family:'Barlow Condensed'; font-weight:700; font-size:13px; letter-spacing:0.8px; cursor:pointer; text-transform:uppercase; }
+  .unit-toggle button.on { background:var(--lime); color:#1a2008; }
+  .targets { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .target { background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:12px; }
+  .target .lbl { font-size:10.5px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:600; margin-bottom:4px; }
+  .target .val { font-family:'Barlow Condensed'; font-weight:700; font-size:22px; color:var(--lime); line-height:1; }
+  .target .unit { color:var(--muted); font-size:13px; font-weight:600; margin-left:3px; }
+  .target .hint { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.35; }
+  .nutri-note { font-size:11.5px; color:var(--muted); margin-top:12px; line-height:1.5; }
 </style>
 </head>
 <body>
@@ -214,6 +237,53 @@
   </header>
 
   <div id="days"></div>
+
+  <div class="nutri">
+    <h3>Fat-loss targets</h3>
+    <p class="sub">Training is ~20% — diet does the rest. Enter your weight to get daily targets.</p>
+    <div class="unit-toggle" id="unitToggle">
+      <button data-unit="kg" class="on">kg</button>
+      <button data-unit="lb">lb</button>
+    </div>
+    <div class="inputs">
+      <div>
+        <label>Bodyweight</label>
+        <input type="number" id="bw" inputmode="decimal" placeholder="70">
+      </div>
+      <div>
+        <label>Activity</label>
+        <select id="act">
+          <option value="28">Sedentary (desk, no walks)</option>
+          <option value="31" selected>Light (lifting + some steps)</option>
+          <option value="34">Moderate (4× lifts + 8k steps)</option>
+          <option value="37">Active (lifts + sport / labor)</option>
+        </select>
+      </div>
+    </div>
+    <div class="targets">
+      <div class="target">
+        <div class="lbl">Maintenance</div>
+        <div><span class="val" id="tMaint">—</span><span class="unit">kcal</span></div>
+        <div class="hint">Eat this to stay the same</div>
+      </div>
+      <div class="target">
+        <div class="lbl">Fat loss</div>
+        <div><span class="val" id="tCut">—</span><span class="unit">kcal</span></div>
+        <div class="hint">~0.5 kg / 1 lb per week</div>
+      </div>
+      <div class="target">
+        <div class="lbl">Protein</div>
+        <div><span class="val" id="tProt">—</span><span class="unit">g</span></div>
+        <div class="hint">Keeps muscle in a deficit</div>
+      </div>
+      <div class="target">
+        <div class="lbl">Steps</div>
+        <div><span class="val">8–10k</span></div>
+        <div class="hint">Bigger lever than cardio</div>
+      </div>
+    </div>
+    <p class="nutri-note">Rough estimates — adjust by 100–200 kcal up or down after 2 weeks based on the scale.</p>
+  </div>
 
   <div class="tips">
     <h3>Two non-negotiables</h3>
@@ -460,6 +530,49 @@ stopBtn.addEventListener('click', ()=>{
 document.getElementById('resetBtn').addEventListener('click', ()=>{
   if(confirm('Clear all checked sets for the week?')){ state={}; save(); render(); }
 });
+
+// ---- Nutrition card ----
+const NUTRI_KEY = 'ul_nutri_v1';
+const bwEl = document.getElementById('bw');
+const actEl = document.getElementById('act');
+const unitBtns = document.querySelectorAll('#unitToggle button');
+let nutri = {};
+try { nutri = JSON.parse(localStorage.getItem(NUTRI_KEY)) || {}; } catch(e){}
+let unit = nutri.unit || 'kg';
+
+function syncUnitUI(){
+  unitBtns.forEach(b => b.classList.toggle('on', b.dataset.unit === unit));
+}
+function computeNutri(){
+  const raw = parseFloat(bwEl.value);
+  if(!raw || raw <= 0){
+    document.getElementById('tMaint').textContent = '—';
+    document.getElementById('tCut').textContent = '—';
+    document.getElementById('tProt').textContent = '—';
+    return;
+  }
+  const kg = unit === 'lb' ? raw / 2.2046 : raw;
+  const mult = parseFloat(actEl.value);
+  const maint = Math.round(kg * mult / 10) * 10;
+  const cut = maint - 400;
+  const prot = Math.round(kg * 1.8);
+  document.getElementById('tMaint').textContent = maint;
+  document.getElementById('tCut').textContent = cut;
+  document.getElementById('tProt').textContent = prot;
+}
+function saveNutri(){
+  try { localStorage.setItem(NUTRI_KEY, JSON.stringify({bw: bwEl.value, act: actEl.value, unit})); } catch(e){}
+}
+if(nutri.bw) bwEl.value = nutri.bw;
+if(nutri.act) actEl.value = nutri.act;
+syncUnitUI();
+computeNutri();
+bwEl.addEventListener('input', ()=>{ computeNutri(); saveNutri(); });
+actEl.addEventListener('change', ()=>{ computeNutri(); saveNutri(); });
+unitBtns.forEach(b => b.addEventListener('click', ()=>{
+  unit = b.dataset.unit;
+  syncUnitUI(); computeNutri(); saveNutri();
+}));
 
 render();
 
