@@ -1,7 +1,7 @@
 // Service worker — caches the app so it works offline (e.g. at the gym with no signal)
 const CACHE = 'posture-strength-v1';
 const ASSETS = [
-  'workout.html',
+  'index.html',
   'manifest.json',
   'icon-192.png',
   'icon-512.png',
@@ -37,7 +37,7 @@ self.addEventListener('fetch', (e) => {
           caches.open(CACHE).then((c) => c.put(e.request, copy));
         }
         return res;
-      }).catch(() => caches.match('workout.html'));
+      }).catch(() => caches.match('index.html'));
     })
   );
 });

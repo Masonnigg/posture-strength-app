@@ -2,7 +2,7 @@
   "name": "Posture & Strength — 4-Day U/L",
   "short_name": "Posture & Strength",
   "description": "4-day Upper/Lower training plan built to fix desk posture and core strength.",
-  "start_url": "workout.html",
+  "start_url": "index.html",
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait",
