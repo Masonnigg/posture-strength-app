@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#121316">
+<title>Posture & Strength — 4-Day U/L</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Posture &amp; Strength">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #121316;
+    --surface: #1c1e23;
+    --surface-2: #25282f;
+    --line: #32363f;
+    --text: #f1f3f6;
+    --muted: #8b909c;
+    --lime: #c6f54a;
+    --lime-dim: #8aa838;
+    --upper: #6fb1ff;
+    --lower: #ff9d6f;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 560px; margin: 0 auto; padding: 0 16px 140px; }
+
+  header {
+    padding: 28px 0 18px;
+    position: sticky; top: 0; z-index: 5;
+    background: linear-gradient(var(--bg) 80%, transparent);
+  }
+  header h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: 30px; line-height: 0.95;
+    margin: 0; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  header h1 span { color: var(--lime); }
+  header p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+
+  .reset-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 14px; gap: 12px;
+  }
+  .progress-track {
+    flex: 1; height: 6px; background: var(--surface-2);
+    border-radius: 99px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; width: 0%; background: var(--lime);
+    border-radius: 99px; transition: width 0.3s ease;
+  }
+  .progress-pct { font-family: 'Barlow Condensed', sans-serif; font-weight:600; font-size: 15px; color: var(--muted); min-width: 38px; text-align:right; }
+  .reset-btn {
+    background: none; border: 1px solid var(--line); color: var(--muted);
+    font-size: 12px; padding: 6px 12px; border-radius: 99px; cursor: pointer;
+    font-family: inherit;
+  }
+  .reset-btn:active { background: var(--surface-2); }
+
+  .day {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .day-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 18px; cursor: pointer; user-select: none;
+  }
+  .day-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: 13px; letter-spacing: 1px;
+    padding: 3px 9px; border-radius: 6px; text-transform: uppercase;
+  }
+  .tag-upper { background: rgba(111,177,255,0.15); color: var(--upper); }
+  .tag-lower { background: rgba(255,157,111,0.15); color: var(--lower); }
+  .day-title {
+    flex: 1;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600; font-size: 19px; letter-spacing: 0.3px;
+  }
+  .day-sub { display:block; font-family:'Inter'; font-weight:400; font-size:11px; color: var(--muted); letter-spacing:0; margin-top:1px; }
+  .day-count { font-family:'Barlow Condensed'; font-weight:600; font-size:14px; color: var(--muted); }
+  .chev { width: 20px; height: 20px; transition: transform 0.25s ease; flex-shrink:0; color: var(--muted); }
+  .day.open .chev { transform: rotate(180deg); }
+
+  .day-body { display: none; padding: 0 18px 8px; }
+  .day.open .day-body { display: block; }
+
+  .section-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--muted); margin: 14px 0 8px; font-weight: 600;
+  }
+
+  .ex {
+    border-top: 1px solid var(--line);
+    padding: 14px 0;
+  }
+  .ex:first-of-type { border-top: none; }
+  .ex-top { display: flex; align-items: baseline; gap: 8px; }
+  .ex-name { font-weight: 600; font-size: 15.5px; flex: 1; }
+  .ex-name .star { color: var(--lime); font-size: 13px; }
+  .ex-scheme { font-family:'Barlow Condensed'; font-weight:600; color: var(--muted); font-size: 15px; white-space: nowrap; }
+  .ex-note { font-size: 12.5px; color: var(--muted); margin: 4px 0 0; line-height: 1.4; }
+
+  .form-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 10px; padding: 7px 12px;
+    background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 99px; color: var(--muted); cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+    font-size: 13px; letter-spacing: 0.4px; text-transform: uppercase;
+  }
+  .form-toggle svg { width: 15px; height: 15px; }
+  .form-toggle:active { transform: scale(0.97); }
+  .form-toggle.active { background: rgba(198,245,74,0.14); border-color: var(--lime-dim); color: var(--lime); }
+
+  .form-panel { display: none; margin-top: 12px; }
+  .form-panel.show { display: block; }
+
+  .fig-wrap {
+    background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 12px; padding: 6px; margin-bottom: 12px;
+  }
+  .exfig { width: 100%; height: auto; display: block; }
+  .exfig .f-head { fill: none; stroke: var(--text); stroke-width: 3.5; }
+  .exfig .f-limb { stroke: var(--text); stroke-width: 4; stroke-linecap: round; }
+  .exfig .f-joint { fill: var(--lime); }
+  .exfig .f-ground { stroke: var(--line); stroke-width: 3; stroke-linecap: round; }
+  .exfig .f-arrow { stroke: var(--lime); stroke-width: 3; fill: none; stroke-linecap: round; stroke-dasharray: 4 4; }
+  .exfig .f-arrowhead { fill: var(--lime); }
+
+  .cue-list { margin: 0; padding-left: 20px; }
+  .cue-list li {
+    font-size: 13px; color: #c8ccd4; line-height: 1.5;
+    margin-bottom: 6px; padding-left: 2px;
+  }
+  .cue-list li::marker { color: var(--lime); }
+  .cue-list li:last-child { margin-bottom: 4px; }
+
+  .sets { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .set-dot {
+    width: 40px; height: 40px; border-radius: 11px;
+    border: 1.5px solid var(--line); background: var(--surface-2);
+    color: var(--muted); font-family:'Barlow Condensed'; font-weight: 700; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .set-dot:active { transform: scale(0.92); }
+  .set-dot.done {
+    background: var(--lime); border-color: var(--lime); color: #1a2008;
+  }
+
+  /* Rest timer */
+  .timer-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+    background: rgba(28,30,35,0.96);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  }
+  .timer-inner { max-width: 560px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
+  .timer-display {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+    font-size: 38px; min-width: 92px; letter-spacing: 1px;
+    color: var(--lime); font-variant-numeric: tabular-nums;
+  }
+  .timer-display.idle { color: var(--muted); }
+  .timer-btns { display: flex; gap: 8px; flex: 1; }
+  .tbtn {
+    flex: 1; padding: 11px 0; border-radius: 11px; border: none;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px;
+    letter-spacing: 0.5px; cursor: pointer; text-transform: uppercase;
+    background: var(--surface-2); color: var(--text); border: 1px solid var(--line);
+  }
+  .tbtn:active { transform: scale(0.96); }
+  .tbtn.primary { background: var(--lime); color: #1a2008; border-color: var(--lime); }
+  .tbtn.stop { background: var(--lime); color:#1a2008; border-color: var(--lime); }
+
+  .legend { font-size: 12px; color: var(--muted); margin: 6px 0 22px; line-height:1.5; }
+  .legend .star { color: var(--lime); }
+
+  .tips { background: var(--surface); border:1px solid var(--line); border-radius:16px; padding: 18px; margin-bottom: 14px; }
+  .tips h3 { font-family:'Barlow Condensed'; font-size:18px; margin:0 0 10px; letter-spacing:0.3px; }
+  .tips ul { margin:0; padding-left: 18px; }
+  .tips li { font-size:13.5px; color:#c8ccd4; line-height:1.55; margin-bottom:7px; }
+  .tips li:last-child{ margin-bottom:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Posture &amp; Strength<br><span>4-Day Upper / Lower</span></h1>
+    <p>Built to fix desk posture &amp; core — not just lift for nothing.</p>
+    <div class="reset-bar">
+      <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+      <div class="progress-pct" id="progPct">0%</div>
+      <button class="reset-btn" id="resetBtn">Reset week</button>
+    </div>
+  </header>
+
+  <div id="days"></div>
+
+  <div class="tips">
+    <h3>Two non-negotiables</h3>
+    <ul>
+      <li><b>Daily 5-min mobility:</b> doorway chest stretch, hip-flexor lunge stretch, chin tucks. Tight chest &amp; hips are half the posture problem.</li>
+      <li><b>Fix your desk:</b> monitor at eye level, stand up every 30–45 min. You can't out-train 10 hours of slouching.</li>
+    </ul>
+  </div>
+
+  <p class="legend"><span class="star">★</span> = posture/core priority — do these even on short days. Tap <b>Form &amp; cues</b> under any exercise for a movement diagram and key technique points. Tap a set number to mark it done; the rest timer starts automatically.</p>
+</div>
+
+<div class="timer-bar">
+  <div class="timer-inner">
+    <div class="timer-display idle" id="timerDisp">REST</div>
+    <div class="timer-btns">
+      <button class="tbtn" data-sec="60">1:00</button>
+      <button class="tbtn" data-sec="90">1:30</button>
+      <button class="tbtn" data-sec="120">2:00</button>
+      <button class="tbtn stop" id="stopBtn" style="display:none;">Stop</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PROGRAM = [
+  { id:'ua', type:'upper', title:'Upper A', sub:'Horizontal focus — your posture workhorse',
+    groups:[
+      { label:'Main work', ex:[
+        {n:'Chest-supported row', s:'4×8–10', star:true, note:'Squeeze shoulder blades back. This is the priority — lead with it.', fig:'row',
+          cues:['Chest stays pinned to the pad the whole set','Drive elbows back and down, not up toward ears','Squeeze shoulder blades together at the top, pause 1s','Lower under control — don\'t let the weight yank your arms straight']},
+        {n:'Incline DB press', s:'3×8–12', fig:'press',
+          cues:['Bench at ~30°, not steeper','Wrists stacked over elbows','Lower to upper chest, elbows ~45° from torso','Press up and slightly together']},
+        {n:'Lat pulldown', s:'3×10–12', fig:'pulldown',
+          cues:['Lead with the elbows, not the hands','Pull the bar to upper chest','Let shoulder blades rotate down, no shrugging','Control the bar back up fully']},
+      ]},
+      { label:'Posture / detail', ex:[
+        {n:'Face pulls', s:'4×15–20', star:true, note:'Rear delts + external rotation — directly fights rounded shoulders.', fig:'facepull',
+          cues:['Rope at face height, light weight','Pull toward your forehead, not your chin','Elbows stay high through the whole pull','End with knuckles facing back — externally rotate','Slow eccentric, feel the rear delts']},
+        {n:'Rear-delt fly', s:'3×15', star:true, fig:'rdfly',
+          cues:['Slight bend in elbows, fixed','Lead with pinkies, like pouring out a jug','Squeeze rear delts, don\'t swing','Keep neck relaxed']},
+        {n:'Biceps curl', s:'3×12', fig:'curl',
+          cues:['Elbows pinned to your sides','No swinging the torso','Full range top and bottom','Squeeze at the top']},
+      ]},
+    ]},
+  { id:'la', type:'lower', title:'Lower A', sub:'Posterior chain focus',
+    groups:[
+      { label:'Main work', ex:[
+        {n:'Romanian deadlift', s:'4×8–10', star:true, note:'Glutes + hamstrings — fights anterior pelvic tilt. Flat back, hinge at hips.', fig:'rdl',
+          cues:['Push your hips back — it\'s a hinge, not a squat','Soft knees, fixed angle','Bar/dumbbells stay close to your legs','Flat back the whole way — never round','Stop at the hamstring stretch, drive hips forward to stand']},
+        {n:'Bulgarian split squat', s:'3×10 / leg', fig:'bss',
+          cues:['Rear foot on the bench, laces down','~80% of weight through the front leg','Drop straight down, front knee tracks over toes','Torso slightly forward, stay tall']},
+        {n:'Hip thrust', s:'3×12', star:true, note:'Glute strength = pelvis control.', fig:'hipthrust',
+          cues:['Upper back on the bench, mid-back as the pivot','Chin tucked, ribs down','Drive through your heels','Squeeze glutes hard at the top — don\'t arch the lower back','Full lockout: hips, knees, shoulders in line']},
+      ]},
+      { label:'Accessory / core', ex:[
+        {n:'Leg curl', s:'3×12', fig:'legcurl',
+          cues:['Hips stay down on the pad','Curl fully, squeeze hamstrings','Slow on the way back','No jerking the weight up']},
+        {n:'Dead bug', s:'3×10 / side', star:true, note:'Anti-extension core — the real posture core work, not crunches.', fig:'deadbug',
+          cues:['Lower back pressed FLAT into the floor — the whole time','Extend opposite arm + leg slowly','If your back arches, you\'ve gone too far','Breathe out as you extend','Move slow — this is control, not reps']},
+        {n:'Calf raise', s:'3×15', fig:'calf',
+          cues:['Full stretch at the bottom','Rise all the way onto the toes','Pause at the top','Controlled, no bouncing']},
+      ]},
+    ]},
+  { id:'ub', type:'upper', title:'Upper B', sub:'Vertical + rotator focus',
+    groups:[
+      { label:'Main work', ex:[
+        {n:'Pull-up (or assisted)', s:'4×6–10', fig:'pullup',
+          cues:['Start from a full dead hang','Pull shoulder blades down first','Lead with the chest to the bar','Control the descent — no dropping']},
+        {n:'Overhead press', s:'3×8–10', note:'Only if shoulders feel good overhead — otherwise sub landmine press.', fig:'ohp',
+          cues:['Brace core, squeeze glutes — don\'t lean back','Bar/dumbbells over mid-foot','Press up, move head through at the top','Full lockout, biceps near ears']},
+        {n:'Chest-supported row', s:'3×10', star:true, fig:'row',
+          cues:['Chest pinned to the pad','Elbows drive back and down','Squeeze blades together at the top','Control the lowering']},
+      ]},
+      { label:'Posture / detail', ex:[
+        {n:'Cable Y-raise', s:'3×15', star:true, note:'Lower traps — the muscle desk posture shuts off.', fig:'yraise',
+          cues:['Light weight — this is a feel exercise','Raise arms into a "Y" overhead','Thumbs up, lead with the lower traps','No shrugging the upper traps','Slow and controlled both directions']},
+        {n:'External rotation (cable/band)', s:'3×15', star:true, fig:'extrot',
+          cues:['Elbow pinned to your side, 90° bend','Roll a towel under the elbow to keep it in','Rotate the forearm outward only','Slow return — this is rotator cuff work']},
+        {n:'Triceps pushdown', s:'3×12', fig:'pushdown',
+          cues:['Elbows locked at your sides','Only the forearms move','Full extension at the bottom','Control the weight back up']},
+      ]},
+    ]},
+  { id:'lb', type:'lower', title:'Lower B', sub:'Squat + anti-rotation core',
+    groups:[
+      { label:'Main work', ex:[
+        {n:'Goblet or front squat', s:'4×8–10', fig:'squat',
+          cues:['Weight at chest, elbows tucked','Brace core before descending','Sit between your hips, knees track over toes','Drive up through mid-foot, chest tall']},
+        {n:'Walking lunge', s:'3×12 / leg', fig:'lunge',
+          cues:['Long step, drop the back knee toward the floor','Front knee over the ankle','Torso upright','Push through the front heel to rise']},
+        {n:'Back extension', s:'3×15', star:true, note:'Spinal erectors — pause at the top.', fig:'backext',
+          cues:['Hinge at the hips, not the lower back','Rise until your body is in a straight line','Pause and squeeze glutes at the top','Don\'t hyperextend past straight']},
+      ]},
+      { label:'Core', ex:[
+        {n:'Pallof press', s:'3×12 / side', star:true, note:'Anti-rotation — teaches your core to brace.', fig:'pallof',
+          cues:['Stand side-on to the cable, feet shoulder-width','Press the handle straight out from your chest','Resist the pull trying to twist you','Brace hard — the goal is NOT rotating','Slow back in, stay square']},
+        {n:'Plank', s:'3× max hold', star:true, fig:'plank',
+          cues:['Elbows under shoulders','Straight line head to heels','Squeeze glutes and brace abs','Don\'t let hips sag or pike up','Breathe — don\'t hold your breath']},
+        {n:'Calf raise', s:'3×15', fig:'calf',
+          cues:['Full stretch at the bottom','Rise onto the toes fully','Pause at the top','No bouncing']},
+      ]},
+    ]},
+];
+
+const SCHEDULE = {ua:'Mon', la:'Tue', ub:'Thu', lb:'Fri'};
+
+/* ---- Exercise figure diagrams (inline SVG, always render offline) ----
+   Each shows a stick figure in the key position + a motion arrow.
+   Style: lime joints, light limbs on a dark rounded card. */
+function fig(key){
+  const W=200,H=150;
+  const open = `<svg viewBox="0 0 ${W} ${H}" class="exfig" preserveAspectRatio="xMidYMid meet">`;
+  const close = `</svg>`;
+  // shared bits
+  const ground = `<line x1="14" y1="138" x2="186" y2="138" class="f-ground"/>`;
+  const arrow = (x1,y1,x2,y2)=>`<path d="M${x1} ${y1} L${x2} ${y2}" class="f-arrow" marker-end="url(#ah)"/>`;
+  const defs = `<defs><marker id="ah" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="f-arrowhead"/></marker></defs>`;
+  const head = (cx,cy,r=9)=>`<circle cx="${cx}" cy="${cy}" r="${r}" class="f-head"/>`;
+  const L = (x1,y1,x2,y2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="f-limb"/>`;
+  const J = (cx,cy)=>`<circle cx="${cx}" cy="${cy}" r="3.2" class="f-joint"/>`;
+
+  const F = {
+    // Rows: bent-over torso, elbow driving back
+    row: head(60,52)+L(68,58,150,90)+L(150,90,150,120)+L(150,120,120,135)+L(150,120,178,135)+L(95,72,70,55)+L(95,72,118,52)+J(95,72)+J(70,55)+arrow(118,52,118,30)+ground,
+    press: head(70,48)+L(70,57,70,110)+L(70,110,52,135)+L(70,110,90,135)+L(70,70,100,60)+L(100,60,100,38)+J(100,60)+arrow(108,40,108,18)+ground,
+    pulldown: head(100,40)+L(100,49,100,100)+L(100,100,84,130)+L(100,100,116,130)+L(100,60,72,32)+L(100,60,128,32)+J(72,46)+J(128,46)+arrow(72,30,72,55)+arrow(128,30,128,55)+ground,
+    facepull: head(70,55)+L(70,64,70,115)+L(70,115,54,138)+L(70,115,88,138)+L(70,74,108,70)+L(108,70,100,48)+J(108,70)+arrow(118,66,80,60)+ground,
+    rdfly: head(90,46)+L(90,55,140,80)+L(140,80,140,120)+L(140,120,118,135)+L(140,120,162,135)+L(108,64,84,52)+L(108,64,132,52)+J(108,64)+arrow(84,52,70,38)+arrow(132,52,146,38)+ground,
+    curl: head(80,48)+L(80,57,80,118)+L(80,118,64,138)+L(80,118,96,138)+L(80,70,104,92)+L(104,92,96,66)+J(104,92)+arrow(108,86,108,62)+ground,
+    rdl: head(64,50)+L(72,56,150,84)+L(150,84,150,135)+L(140,108,134,84)+L(95,68,98,108)+J(95,68)+J(150,84)+arrow(40,70,40,110)+ground,
+    bss: head(78,40)+L(78,49,78,92)+L(78,92,70,135)+L(78,92,118,100)+L(118,100,140,128)+L(78,60,96,82)+J(78,92)+J(118,100)+arrow(78,28,78,52)+ground,
+    hipthrust: head(40,90)+L(48,92,110,78)+L(110,78,150,90)+L(110,78,110,120)+L(110,120,90,135)+L(110,120,134,135)+J(110,78)+arrow(110,60,110,82)+`<line x1="150" y1="70" x2="150" y2="110" class="f-ground"/>`+ground,
+    legcurl: head(40,70)+L(48,72,140,72)+L(140,72,150,40)+L(140,72,150,40)+J(140,72)+arrow(160,55,150,38)+`<line x1="150" y1="40" x2="158" y2="46" class="f-limb"/>`+ground,
+    deadbug: head(36,108)+L(44,110,150,110)+L(150,110,150,70)+L(150,110,176,98)+L(70,110,60,72)+L(60,72,62,52)+J(150,110)+J(70,110)+arrow(150,62,150,46)+arrow(62,46,62,30)+ground,
+    calf: head(80,40)+L(80,49,80,112)+L(80,112,68,130)+L(80,112,92,130)+J(80,118)+arrow(100,120,100,96)+ground,
+    pullup: `<line x1="40" y1="22" x2="160" y2="22" class="f-ground"/>`+head(100,58)+L(100,67,100,118)+L(100,118,86,138)+L(100,118,114,138)+L(100,74,78,24)+L(100,74,122,24)+J(78,42)+J(122,42)+arrow(100,40,100,62),
+    ohp: head(80,46)+L(80,55,80,118)+L(80,118,66,138)+L(80,118,94,138)+L(80,68,58,40)+L(80,68,102,40)+J(58,54)+J(102,54)+arrow(58,38,58,20)+arrow(102,38,102,20),
+    yraise: head(90,52)+L(90,61,90,120)+L(90,120,76,138)+L(90,120,104,138)+L(90,70,62,38)+L(90,70,118,38)+J(62,52)+J(118,52)+arrow(62,36,56,20)+arrow(118,36,124,20)+ground,
+    extrot: head(70,52)+L(70,61,70,120)+L(70,120,56,138)+L(70,120,84,138)+L(70,74,70,96)+L(70,96,110,90)+J(70,96)+arrow(116,98,124,80)+ground,
+    pushdown: head(80,46)+L(80,55,80,116)+L(80,116,66,136)+L(80,116,94,136)+L(80,66,100,86)+L(100,86,100,116)+J(100,86)+arrow(108,90,108,114)+ground,
+    squat: head(90,52)+L(90,61,90,96)+L(90,96,72,128)+L(90,96,108,128)+L(90,70,72,60)+L(90,70,108,60)+J(90,96)+arrow(120,70,120,110)+ground,
+    lunge: head(76,42)+L(76,51,76,96)+L(76,96,60,135)+L(76,96,116,108)+L(116,108,140,135)+L(76,62,92,84)+J(76,96)+J(116,108)+arrow(76,118,76,134)+ground,
+    backext: head(44,64)+L(52,66,140,84)+L(140,84,150,120)+J(95,75)+arrow(44,50,70,46)+`<line x1="140" y1="84" x2="150" y2="120" class="f-ground"/>`+ground,
+    pallof: head(80,46)+L(80,55,80,116)+L(80,116,66,138)+L(80,116,94,138)+L(80,68,120,70)+J(80,68)+arrow(126,70,150,70)+`<line x1="150" y1="50" x2="150" y2="92" class="f-ground"/>`+ground,
+    plank: head(34,96)+L(42,98,150,108)+L(46,98,46,124)+L(150,108,150,130)+J(46,98)+arrow(95,84,95,100)+ground,
+  };
+  return open + defs + (F[key]||'') + close;
+}
+
+const STORE_KEY = 'ul_posture_v1';
+let state = {};
+try { state = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch(e){ state = {}; }
+
+function setKey(dayId, gi, ei, si){ return `${dayId}.${gi}.${ei}.${si}`; }
+function parseSets(scheme){ const m = scheme.match(/^(\d+)/); return m ? parseInt(m[1]) : 3; }
+
+let totalSets = 0;
+PROGRAM.forEach(d => d.groups.forEach((g,gi)=> g.ex.forEach((e,ei)=> { totalSets += parseSets(e.s); })));
+
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+
+function countDone(){ return Object.values(state).filter(Boolean).length; }
+function countDoneForDay(dayId){
+  return Object.keys(state).filter(k=>k.startsWith(dayId+'.') && state[k]).length;
+}
+function setsForDay(d){ let n=0; d.groups.forEach(g=>g.ex.forEach(e=> n+=parseSets(e.s))); return n; }
+
+function updateProgress(){
+  const pct = totalSets ? Math.round(countDone()/totalSets*100) : 0;
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progPct').textContent = pct+'%';
+  PROGRAM.forEach(d=>{
+    const el = document.getElementById('count-'+d.id);
+    if(el) el.textContent = countDoneForDay(d.id)+' / '+setsForDay(d);
+  });
+}
+
+function render(){
+  const root = document.getElementById('days');
+  root.innerHTML = '';
+  PROGRAM.forEach((d, idx)=>{
+    const day = document.createElement('div');
+    day.className = 'day' + (idx===0 ? ' open':'');
+    const tagClass = d.type==='upper' ? 'tag-upper':'tag-lower';
+    let html = `
+      <div class="day-head">
+        <span class="day-tag ${tagClass}">${SCHEDULE[d.id]}</span>
+        <span class="day-title">${d.title}<span class="day-sub">${d.sub}</span></span>
+        <span class="day-count" id="count-${d.id}">0 / ${setsForDay(d)}</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="day-body">`;
+    d.groups.forEach((g, gi)=>{
+      html += `<div class="section-label">${g.label}</div>`;
+      g.ex.forEach((e, ei)=>{
+        const nSets = parseSets(e.s);
+        let dots = '';
+        for(let si=0; si<nSets; si++){
+          const k = setKey(d.id, gi, ei, si);
+          dots += `<div class="set-dot ${state[k]?'done':''}" data-key="${k}">${si+1}</div>`;
+        }
+        html += `
+          <div class="ex">
+            <div class="ex-top">
+              <span class="ex-name">${e.n} ${e.star?'<span class="star">★</span>':''}</span>
+              <span class="ex-scheme">${e.s}</span>
+            </div>
+            ${e.note?`<p class="ex-note">${e.note}</p>`:''}
+            ${(e.fig||e.cues)?`
+            <button class="form-toggle" data-form="${d.id}-${gi}-${ei}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+              Form &amp; cues
+            </button>
+            <div class="form-panel" id="form-${d.id}-${gi}-${ei}">
+              ${e.fig?`<div class="fig-wrap">${fig(e.fig)}</div>`:''}
+              ${e.cues?`<ul class="cue-list">${e.cues.map(c=>`<li>${c}</li>`).join('')}</ul>`:''}
+            </div>`:''}
+            <div class="sets">${dots}</div>
+          </div>`;
+      });
+    });
+    html += `</div>`;
+    day.innerHTML = html;
+    root.appendChild(day);
+
+    day.querySelector('.day-head').addEventListener('click', ()=> day.classList.toggle('open'));
+    day.querySelectorAll('.set-dot').forEach(dot=>{
+      dot.addEventListener('click', ()=>{
+        const k = dot.dataset.key;
+        state[k] = !state[k];
+        dot.classList.toggle('done', state[k]);
+        save(); updateProgress();
+        if(state[k]) startTimer(90); // auto-start rest on completing a set
+      });
+    });
+    day.querySelectorAll('.form-toggle').forEach(btn=>{
+      btn.addEventListener('click', (ev)=>{
+        ev.stopPropagation();
+        const panel = document.getElementById('form-'+btn.dataset.form);
+        const open = panel.classList.toggle('show');
+        btn.classList.toggle('active', open);
+      });
+    });
+  });
+  updateProgress();
+}
+let timerId = null, remaining = 0;
+const disp = document.getElementById('timerDisp');
+const stopBtn = document.getElementById('stopBtn');
+
+function fmt(s){ const m=Math.floor(s/60); const ss=s%60; return m+':'+String(ss).padStart(2,'0'); }
+
+function tick(){
+  remaining--;
+  if(remaining<=0){
+    clearInterval(timerId); timerId=null;
+    disp.textContent='DONE'; disp.classList.remove('idle');
+    stopBtn.style.display='none';
+    try{ navigator.vibrate && navigator.vibrate([200,80,200]); }catch(e){}
+    setTimeout(()=>{ if(!timerId){ disp.textContent='REST'; disp.classList.add('idle'); } }, 2500);
+    return;
+  }
+  disp.textContent = fmt(remaining);
+}
+function startTimer(sec){
+  clearInterval(timerId);
+  remaining = sec; disp.classList.remove('idle'); disp.textContent = fmt(remaining);
+  stopBtn.style.display='block';
+  timerId = setInterval(tick, 1000);
+}
+document.querySelectorAll('.tbtn[data-sec]').forEach(b=>{
+  b.addEventListener('click', ()=> startTimer(parseInt(b.dataset.sec)));
+});
+stopBtn.addEventListener('click', ()=>{
+  clearInterval(timerId); timerId=null;
+  disp.textContent='REST'; disp.classList.add('idle'); stopBtn.style.display='none';
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(confirm('Clear all checked sets for the week?')){ state={}; save(); render(); }
+});
+
+render();
+
+// Register service worker for offline use (only works over http/https, not file://)
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>

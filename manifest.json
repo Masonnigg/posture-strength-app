@@ -1,0 +1,16 @@
+{
+  "name": "Posture & Strength — 4-Day U/L",
+  "short_name": "Posture & Strength",
+  "description": "4-day Upper/Lower training plan built to fix desk posture and core strength.",
+  "start_url": "workout.html",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#121316",
+  "theme_color": "#121316",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
