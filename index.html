@@ -152,9 +152,12 @@
   .cue-list li::marker { color: var(--lime); }
   .cue-list li:last-child { margin-bottom: 4px; }
 
-  .sets { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .last-hint { font-size: 11.5px; color: var(--muted); margin-top: 6px; font-family:'Barlow Condensed'; font-weight:600; letter-spacing:0.4px; text-transform:uppercase; }
+  .last-hint b { color: var(--lime); font-weight:700; }
+  .sets { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .set-item { display:flex; flex-direction:column; align-items:center; gap:4px; }
   .set-dot {
-    width: 40px; height: 40px; border-radius: 11px;
+    width: 44px; height: 44px; border-radius: 12px;
     border: 1.5px solid var(--line); background: var(--surface-2);
     color: var(--muted); font-family:'Barlow Condensed'; font-weight: 700; font-size: 16px;
     display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -164,6 +167,45 @@
   .set-dot.done {
     background: var(--lime); border-color: var(--lime); color: #1a2008;
   }
+  .set-log { font-family:'Barlow Condensed'; font-weight:700; font-size:12px; color:var(--lime); letter-spacing:0.3px; min-height:14px; }
+  .set-item .set-log.empty { color: transparent; }
+
+  /* Weight entry sheet */
+  .sheet-backdrop {
+    position: fixed; inset: 0; z-index: 30;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    display: none; align-items: flex-end; justify-content: center;
+  }
+  .sheet-backdrop.show { display: flex; }
+  .sheet {
+    background: var(--surface); width: 100%; max-width: 560px;
+    border-radius: 22px 22px 0 0; border-top: 1px solid var(--line);
+    padding: 18px 18px calc(20px + env(safe-area-inset-bottom));
+    animation: sheetUp 0.22s ease;
+  }
+  @keyframes sheetUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .sheet h4 { font-family:'Barlow Condensed'; font-weight:700; font-size:20px; margin:0 0 2px; letter-spacing:0.3px; }
+  .sheet .sheet-sub { font-size: 12px; color: var(--muted); margin: 0 0 14px; }
+  .sheet-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .sheet-field label { display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:5px; font-weight:600; }
+  .sheet-field .with-unit { position: relative; }
+  .sheet-field input {
+    width: 100%; background: var(--surface-2); border: 1px solid var(--line);
+    color: var(--text); border-radius: 12px; padding: 14px 14px;
+    font-family:'Barlow Condensed', sans-serif; font-weight: 700;
+    font-size: 24px; -webkit-appearance:none; appearance:none;
+    text-align: center;
+  }
+  .sheet-field input:focus { outline: none; border-color: var(--lime-dim); }
+  .sheet-field .unit-pill {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 12px; font-weight:600; letter-spacing:0.5px;
+  }
+  .sheet-actions { display:flex; gap: 8px; }
+  .sheet-actions .tbtn { flex: 1; padding: 13px 0; }
+  .sheet-actions .tbtn.primary { background: var(--lime); color:#1a2008; border-color: var(--lime); }
+  .sheet-actions .tbtn.ghost { background: transparent; color: var(--muted); }
+  .sheet-actions .tbtn.danger { background: transparent; color: #ff7a7a; border-color: var(--line); }
 
   /* Rest timer */
   .timer-bar {
@@ -296,6 +338,31 @@
   <p class="legend"><span class="star">★</span> = posture/core priority — do these even on short days. Tap <b>Form &amp; cues</b> under any exercise for a movement diagram and key technique points. Tap a set number to mark it done; the rest timer starts automatically.</p>
 </div>
 
+<div class="sheet-backdrop" id="sheetBack">
+  <div class="sheet" id="sheet">
+    <h4 id="sheetTitle">Log set</h4>
+    <p class="sheet-sub" id="sheetSub">Set 1 of 3</p>
+    <div class="sheet-grid">
+      <div class="sheet-field">
+        <label>Weight</label>
+        <div class="with-unit">
+          <input type="number" id="sWeight" inputmode="decimal" placeholder="0">
+          <span class="unit-pill" id="sUnit">kg</span>
+        </div>
+      </div>
+      <div class="sheet-field">
+        <label>Reps</label>
+        <input type="number" id="sReps" inputmode="numeric" placeholder="0">
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="tbtn danger" id="sheetClear">Clear</button>
+      <button class="tbtn ghost" id="sheetCancel">Cancel</button>
+      <button class="tbtn primary" id="sheetSave">Done</button>
+    </div>
+  </div>
+</div>
+
 <div class="timer-bar">
   <div class="timer-inner">
     <div class="timer-display idle" id="timerDisp">REST</div>
@@ -398,21 +465,37 @@ function exImg(folder){
 
 const SCHEDULE = {ua:'Mon', la:'Tue', ub:'Thu', lb:'Fri'};
 
-const STORE_KEY = 'ul_posture_v1';
+const STORE_KEY = 'ul_posture_v2';
+const LASTLOG_KEY = 'ul_lastlog_v1';
 let state = {};
+let lastLog = {}; // { exerciseName: { w, r, unit, ts } } — survives week reset
 try { state = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch(e){ state = {}; }
+try { lastLog = JSON.parse(localStorage.getItem(LASTLOG_KEY)) || {}; } catch(e){ lastLog = {}; }
+
+// Migrate legacy v1 (boolean values) → v2 object schema
+try {
+  const v1 = JSON.parse(localStorage.getItem('ul_posture_v1'));
+  if(v1 && !Object.keys(state).length){
+    Object.keys(v1).forEach(k => { if(v1[k]) state[k] = { done: true }; });
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  }
+} catch(e){}
+// Normalize any stray booleans in current state
+Object.keys(state).forEach(k => { if(state[k] === true) state[k] = { done: true }; });
 
 function setKey(dayId, gi, ei, si){ return `${dayId}.${gi}.${ei}.${si}`; }
 function parseSets(scheme){ const m = scheme.match(/^(\d+)/); return m ? parseInt(m[1]) : 3; }
+function isDone(k){ return !!(state[k] && state[k].done); }
 
 let totalSets = 0;
 PROGRAM.forEach(d => d.groups.forEach((g,gi)=> g.ex.forEach((e,ei)=> { totalSets += parseSets(e.s); })));
 
 function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+function saveLastLog(){ try{ localStorage.setItem(LASTLOG_KEY, JSON.stringify(lastLog)); }catch(e){} }
 
-function countDone(){ return Object.values(state).filter(Boolean).length; }
+function countDone(){ return Object.keys(state).filter(isDone).length; }
 function countDoneForDay(dayId){
-  return Object.keys(state).filter(k=>k.startsWith(dayId+'.') && state[k]).length;
+  return Object.keys(state).filter(k=>k.startsWith(dayId+'.') && isDone(k)).length;
 }
 function setsForDay(d){ let n=0; d.groups.forEach(g=>g.ex.forEach(e=> n+=parseSets(e.s))); return n; }
 
@@ -448,8 +531,16 @@ function render(){
         let dots = '';
         for(let si=0; si<nSets; si++){
           const k = setKey(d.id, gi, ei, si);
-          dots += `<div class="set-dot ${state[k]?'done':''}" data-key="${k}">${si+1}</div>`;
+          const v = state[k];
+          const done = v && v.done;
+          const log = (v && v.w!=null) ? `${v.w}${v.unit||''}×${v.r||'-'}` : '';
+          dots += `<div class="set-item">
+            <div class="set-dot ${done?'done':''}" data-key="${k}" data-ex="${e.n.replace(/"/g,'&quot;')}" data-si="${si}" data-ns="${nSets}">${si+1}</div>
+            <div class="set-log ${log?'':'empty'}">${log||'·'}</div>
+          </div>`;
         }
+        const last = lastLog[e.n];
+        const lastHint = last ? `<div class="last-hint">Last: <b>${last.w}${last.unit||''} × ${last.r}</b></div>` : '';
         html += `
           <div class="ex">
             <div class="ex-top">
@@ -466,6 +557,7 @@ function render(){
               ${e.img?exImg(e.img):''}
               ${e.cues?`<ul class="cue-list">${e.cues.map(c=>`<li>${c}</li>`).join('')}</ul>`:''}
             </div>`:''}
+            ${lastHint}
             <div class="sets">${dots}</div>
           </div>`;
       });
@@ -476,13 +568,7 @@ function render(){
 
     day.querySelector('.day-head').addEventListener('click', ()=> day.classList.toggle('open'));
     day.querySelectorAll('.set-dot').forEach(dot=>{
-      dot.addEventListener('click', ()=>{
-        const k = dot.dataset.key;
-        state[k] = !state[k];
-        dot.classList.toggle('done', state[k]);
-        save(); updateProgress();
-        if(state[k]) startTimer(90); // auto-start rest on completing a set
-      });
+      dot.addEventListener('click', ()=> openSheet(dot.dataset.key, dot.dataset.ex, parseInt(dot.dataset.si), parseInt(dot.dataset.ns)));
     });
     day.querySelectorAll('.form-toggle').forEach(btn=>{
       btn.addEventListener('click', (ev)=>{
@@ -528,7 +614,62 @@ stopBtn.addEventListener('click', ()=>{
 });
 
 document.getElementById('resetBtn').addEventListener('click', ()=>{
-  if(confirm('Clear all checked sets for the week?')){ state={}; save(); render(); }
+  if(confirm('Clear all checked sets for the week? (Your last weights are kept.)')){ state={}; save(); render(); }
+});
+
+// ---- Weight-entry sheet ----
+let sheetKey = null, sheetEx = null;
+const sheetBack = document.getElementById('sheetBack');
+const sWeight = document.getElementById('sWeight');
+const sReps = document.getElementById('sReps');
+const sUnit = document.getElementById('sUnit');
+
+function currentUnit(){
+  try { return (JSON.parse(localStorage.getItem('ul_nutri_v1'))||{}).unit || 'kg'; } catch(e){ return 'kg'; }
+}
+function openSheet(key, exName, si, ns){
+  sheetKey = key; sheetEx = exName;
+  const v = state[key] || {};
+  const last = lastLog[exName];
+  const u = currentUnit();
+  sUnit.textContent = u;
+  // Prefill: this set's value if logged, else last logged weight for this exercise
+  sWeight.value = v.w != null ? v.w : (last ? last.w : '');
+  sReps.value = v.r != null ? v.r : (last ? last.r : '');
+  document.getElementById('sheetTitle').textContent = exName;
+  document.getElementById('sheetSub').textContent = `Set ${si+1} of ${ns}`;
+  sheetBack.classList.add('show');
+  setTimeout(()=> sWeight.focus(), 50);
+}
+function closeSheet(){
+  sheetBack.classList.remove('show');
+  sheetKey = null; sheetEx = null;
+  if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+}
+document.getElementById('sheetCancel').addEventListener('click', closeSheet);
+sheetBack.addEventListener('click', (e)=>{ if(e.target === sheetBack) closeSheet(); });
+document.getElementById('sheetClear').addEventListener('click', ()=>{
+  if(!sheetKey) return;
+  delete state[sheetKey];
+  save(); render(); closeSheet();
+});
+document.getElementById('sheetSave').addEventListener('click', ()=>{
+  if(!sheetKey) return;
+  const w = parseFloat(sWeight.value);
+  const r = parseInt(sReps.value);
+  const u = currentUnit();
+  state[sheetKey] = {
+    done: true,
+    w: isNaN(w) ? null : w,
+    r: isNaN(r) ? null : r,
+    unit: u
+  };
+  if(!isNaN(w) && sheetEx){
+    lastLog[sheetEx] = { w, r: isNaN(r)?null:r, unit: u, ts: Date.now() };
+    saveLastLog();
+  }
+  save(); render(); closeSheet();
+  startTimer(90);
 });
 
 // ---- Nutrition card ----
